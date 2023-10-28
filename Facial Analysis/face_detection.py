@@ -28,9 +28,9 @@ async def main():
                     _, buffer = cv2.imencode('.jpg', img)
                     jpg_as_text = base64.b64encode(buffer)
 
-                    # TODO: Catch no face error
+                    #TODO: Catch no face error
                     result = await socket.send_bytes(jpg_as_text)    
-                    scores = result['face']['predictions'][0]['emotions'] # ? Specifically target indexes for extra speed
+                    scores = result['face']['predictions'][0]['emotions'] # Check for existence of 'predictions' to counter errors
                     emotions = sorted(result['face']['predictions'][0]['emotions'], key=lambda x: x['score'], reverse=True)
                     top_emotions = emotions[:5]
                     print([i['name'] for i in top_emotions])
@@ -38,15 +38,19 @@ async def main():
                     #TODO: Address resting face of user (user data will be stored in a database)
                     
                     
-                    # ? Possible emotions to track: Anxiety, Anger, Distress, Pain, Tiredness
+                    # ? Possible emotions to track: Anxiety, Anger, Distress, Pain, Sadness, Tiredness
                     
-                    
-                    #TODO: Add emotions that need to be tracked to a 2 minute database (for now I'll just use a json)
+                    #TODO: Add emotions that need to be tracked to a 2 minute database (temporary use of json, will shift to Reflex SQL)
                     anger_score = scores[4]['score']
-                    anxiety_score = scores[5]['score'] # ! Find indexes of all the other emotions that need to be tracked
+                    anxiety_score = scores[5]['score'] 
+                    distress_score = scores[19]['score'] 
+                    pain_score = scores[34]['score'] 
+                    sadness_score = scores[39]['score'] 
+                    tiredness_score = scores[46]['score']
                     
-                    # 0:Anger, 1:Anxiety
-                    temp_data[curr_second_count] = [anger_score, anxiety_score] # ! Insert a list with data of emotional values we should keep track of and address user's resting config
+                    #TODO: Address user resting config
+                    # 0:Anger, 1:Anxiety, 2:Distress, 3:Pain, 4:Sadness, 5:Tiredness
+                    temp_data[curr_second_count] = [anger_score, anxiety_score, distress_score, pain_score, sadness_score, tiredness_score] 
                     with open("Facial Analysis\increment_data.json", "w") as outfile:
                         json.dump(temp_data, outfile)
                     

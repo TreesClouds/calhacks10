@@ -5,7 +5,6 @@ from hume.models.config import FaceConfig
 
 HUME_KEY = 'A6wdNigFGRQjP7q3616ICffWKxVwpOTTGB60f7IoFnFZAj1R' # TODO: Gonna have to hide this before we get hacked
 
-
 async def main():
     client = HumeStreamClient(HUME_KEY)
     config = FaceConfig()
@@ -57,7 +56,23 @@ async def main():
                     curr_second_count += 1
                     if curr_second_count == 120: # 2 minutes for now (assuming 60 FPS)
                         #TODO: Two minute summary check (take mean of each emotion, go through conditions)
+                        anger_sum, anxiety_sum, distress_sum = 0, 0, 0
+                        pain_sum, sadness_sum, tiredness_sum = 0, 0, 0
                         
+                        for data in temp_data:
+                            anger_sum += data[0]
+                            anxiety_sum += data[1]
+                            distress_sum += data[2]
+                            pain_sum += data[3]
+                            sadness_sum += data[4]
+                            tiredness_sum += data[5]
+                            
+                        anger_mean, anxiety_mean, distress_mean = anger_sum / curr_second_count, anxiety_sum / curr_second_count, distress_sum / curr_second_count
+                        pain_mean, sadness_mean, tiredness_mean = pain_sum / curr_second_count, sadness_sum / curr_second_count, tiredness_sum / curr_second_count
+                        
+                        # ! Example test case
+                        if anger_mean >= 0.8:
+                            print("You need to chill out, take a break! *sends browser notification*")
                         
                         # Wipes data from temp database after checking last 2 mins of data
                         temp_data = {}

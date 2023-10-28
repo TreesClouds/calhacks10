@@ -1,9 +1,10 @@
-import cv2, base64, asyncio, json
+import cv2, base64, asyncio, json, os
 from cvzone.FaceDetectionModule import FaceDetector
 from hume import HumeStreamClient
 from hume.models.config import FaceConfig
 
 HUME_KEY = 'A6wdNigFGRQjP7q3616ICffWKxVwpOTTGB60f7IoFnFZAj1R' # TODO: Gonna have to hide this before we get hacked
+# HUME_KEY = os.environ.get('HUME_KEY')
 
 async def main():
     client = HumeStreamClient(HUME_KEY)
@@ -29,7 +30,9 @@ async def main():
 
                     #TODO: Catch no face error
                     result = await socket.send_bytes(jpg_as_text)    
-                    scores = result['face']['predictions'][0]['emotions'] # Check for existence of 'predictions' to counter errors
+                    if not result['face']['predictions']:
+                        continue
+                    scores = result['face']['predictions'][0]['emotions'] 
                     emotions = sorted(result['face']['predictions'][0]['emotions'], key=lambda x: x['score'], reverse=True)
                     top_emotions = emotions[:5]
                     print([i['name'] for i in top_emotions])

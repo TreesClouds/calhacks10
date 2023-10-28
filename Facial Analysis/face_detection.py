@@ -30,20 +30,29 @@ async def main():
 
                     # TODO: Catch no face error
                     result = await socket.send_bytes(jpg_as_text)    
-                    print(result['face']['predictions'][0]['emotions']) # ? Specifically target indexes for extra speed
+                    scores = result['face']['predictions'][0]['emotions'] # ? Specifically target indexes for extra speed
                     emotions = sorted(result['face']['predictions'][0]['emotions'], key=lambda x: x['score'], reverse=True)
                     top_emotions = emotions[:5]
                     print([i['name'] for i in top_emotions])
                     
-                    #TODO: Add emotions that need to be tracked to a 2 minute database (for now I'll just use a json)
+                    #TODO: Address resting face of user (user data will be stored in a database)
+                    
+                    
                     # ? Possible emotions to track: Anxiety, Anger, Distress, Pain, Tiredness
-                    temp_data[curr_second_count] = [] # ! Insert a list with data of emotion values we should keep track of
+                    
+                    
+                    #TODO: Add emotions that need to be tracked to a 2 minute database (for now I'll just use a json)
+                    anger_score = scores[4]['score']
+                    anxiety_score = scores[5]['score'] # ! Find indexes of all the other emotions that need to be tracked
+                    
+                    # 0:Anger, 1:Anxiety
+                    temp_data[curr_second_count] = [anger_score, anxiety_score] # ! Insert a list with data of emotional values we should keep track of and address user's resting config
                     with open("Facial Analysis\increment_data.json", "w") as outfile:
                         json.dump(temp_data, outfile)
                     
                     curr_second_count += 1
                     if curr_second_count == 120: # 2 minutes for now (assuming 60 FPS)
-                        #TODO: Two minute summary check
+                        #TODO: Two minute summary check (take mean of each emotion, go through conditions)
                         
                         
                         # Wipes data from temp database after checking last 2 mins of data
